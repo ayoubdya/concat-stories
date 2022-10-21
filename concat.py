@@ -44,7 +44,7 @@ def renderList(i, ext):
 def main():
   ls = subprocess.Popen(['ls', '-rt', path], stdout=subprocess.PIPE)
   ls = ls.communicate()[0].decode("utf-8").split('\n')[:-1]
-  ls = list(filter(lambda x: x[-3:] in ['jpg', 'mp4'], ll))
+  ls = list(filter(lambda x: x[-3:] in ['jpg', 'mp4'], ls))
   ext = ls[0][-3:]
   i = 0
   for f in ls:
