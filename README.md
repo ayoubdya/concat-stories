@@ -1,4 +1,4 @@
-concatenate snapchat public stories or instagram stroies into one video with FFmpeg
+concatenate snapchat public stories or instagram stories into one video with FFmpeg
 
 ### Snapchat
 
