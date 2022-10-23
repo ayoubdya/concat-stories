@@ -1,15 +1,38 @@
 import os
+import re
 import subprocess
-#from datetime import date
 
-relPath = input("enter relative path : ")
-path = os.path.join(os.getcwd(), relPath)
+debug = False
+sampleRate = '44100'
+
+typeOfStory = int(
+  input("\t[0] snapchat\n\t[1] instagram\nenter type of story : "))
+channelLayout = 'stereo'
+if typeOfStory == 1:
+  channelLayout = 'mono'
+
+path = input("enter absolute path of the stories folder : ")
+durationTime = int(input("enter duration time between pictures (sec) : "))
 outputName = input("enter output name : ")
-durationTime = int(input("enter duration time in secs : "))
 
 
 def getFullPath(fileName):
   return os.path.join(path, fileName)
+
+
+def getSampleRate(filePath):
+  ffprobe = subprocess.Popen(
+      ['ffprobe', filePath], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+  # ffprobe prints to stderr wtf -_-
+  ffprobe = ffprobe.communicate()[1].decode("utf-8")
+  # print('*' * 50 + f'\n{ffprobe}\n' + '*' * 50)
+  try:
+    rate = re.findall(r"(\d{5}) Hz", ffprobe)[0]
+    layout = re.findall(r"Hz, (\w+),", ffprobe)[0]
+  except Exception as e:
+    print(e)
+    return -1, -1
+  return rate, layout
 
 
 def appendList(i, ext, f):
@@ -28,22 +51,43 @@ def renderList(i, ext):
   if ext == 'jpg':
     with open(listPath, 'r') as txt:
       lines = txt.readlines()
-    if len(lines) < 4:
+    if len(lines) <= 4:
       with open(listPath, 'a') as txt:
         txt.write(f"{lines[-2]}\n")
     noAudioOutputPath = getFullPath(f'out-{i}-no-audio.mp4')
-    subprocess.run(['ffmpeg', '-hwaccel', 'cuda', '-safe', '0', '-f', 'concat', '-i',
+    #'-hwaccel', 'cuda'
+    subprocess.run(['ffmpeg', '-safe', '0', '-f', 'concat', '-i',
                    listPath, '-filter:v', "pad=width=max(iw\,ih*(16/9)):height=ow/(16/9):x='((ow-iw)/2)':y='((oh-ih)/2)'", '-vcodec', 'h264_nvenc', '-s', '1920x1080', '-r', '30', noAudioOutputPath])
-    subprocess.run(['ffmpeg', '-i', noAudioOutputPath, '-f', 'lavfi', '-i', 'anullsrc=channel_layout=mono:sample_rate=44100',
+    subprocess.run(['ffmpeg', '-i', noAudioOutputPath, '-f', 'lavfi', '-i', f'anullsrc=channel_layout={channelLayout}:sample_rate={sampleRate}',
                    '-map', '0:v', '-map', '1:a', '-c:v', 'copy', '-c:a', 'aac', '-shortest', outputPath])
   else:
-    subprocess.run(['ffmpeg', '-hwaccel', 'cuda', '-safe', '0', '-f', 'concat', '-i',
-                   listPath, '-filter:v', "pad=width=max(iw\,ih*(16/9)):height=ow/(16/9):x='((ow-iw)/2)':y='((oh-ih)/2)'", '-vcodec', 'h264_nvenc', '-s', '1920x1080', '-r', '30', outputPath])
+    with open(listPath, 'r') as txt:
+      filePathList = [file.replace('file ', '').replace("'", "")
+                      for file in txt.read().split('\n')[:-1]]
+    text = ''
+    for filePath in filePathList:
+      if getSampleRate(filePath) == (-1, -1):
+        noAudioPath = f"{filePath[:-4]}-na.mp4"
+        print(filePath, noAudioPath)
+        subprocess.run(['mv', filePath, noAudioPath])
+        subprocess.run(['ffmpeg', '-i', noAudioPath, '-f', 'lavfi', '-i', f'anullsrc=channel_layout={channelLayout}:sample_rate={sampleRate}',
+                        '-map', '0:v', '-map', '1:a', '-c:v', 'copy', '-c:a', 'aac', '-shortest', filePath])
+      if getSampleRate(filePath) != (sampleRate, channelLayout):
+        newOutputPath = f"{filePath[:-4]}_mod.mp4"
+        subprocess.run(['ffmpeg', '-i', filePath, '-af',
+                        f'aformat=channel_layouts={channelLayout},asetrate={sampleRate}', '-c:v', 'copy', newOutputPath])
+        text += f"file '{newOutputPath}'\n"
+      else:
+        text += f"file '{filePath}'\n"
+    with open(listPath, 'w') as txt:
+      txt.write(text)
+    subprocess.run(['ffmpeg', '-hwaccel', 'cuda', '-safe', '0', '-f', 'concat', '-i', listPath, '-filter:v',
+                   "pad=width=max(iw\,ih*(16/9)):height=ow/(16/9):x='((ow-iw)/2)':y='((oh-ih)/2)'", '-vcodec', 'h264_nvenc', '-s', '1920x1080', '-r', '30', outputPath])
 
 
 def main():
-  ls = subprocess.Popen(['ls', '-rt', path], stdout=subprocess.PIPE)
-  ls = ls.communicate()[0].decode("utf-8").split('\n')[:-1]
+  ls = subprocess.Popen(['ls', path], stdout=subprocess.PIPE)
+  ls = ls.communicate()[0].decode("utf-8").split('\n')[: -1]
   ls = list(filter(lambda x: x[-3:] in ['jpg', 'mp4'], ls))
   ext = ls[0][-3:]
   i = 0
@@ -66,9 +110,12 @@ def main():
         text += f'file {fullPath}\n'
       txt.write(text)
     subprocess.run(['ffmpeg', '-safe', '0', '-f', 'concat', '-i',
-                   listPath, '-c', 'copy', outputName])
+                   listPath, '-c', 'copy', f'{outputName}.mp4'])
   else:
-    subprocess.run(['mv', getFullPath('out-0.mp4'), outputName])
+    subprocess.run(['mv', getFullPath('out-0.mp4'), f'{outputName}.mp4'])
+
+  # if not debug:
+  #   subprocess.run(f'rm {path}/out-* {path}/list-* {path}/*_mod.mp4')
 
 
 if __name__ == '__main__':
