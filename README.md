@@ -1,21 +1,33 @@
 concatenate snapchat public stories or instagram stories into one video with FFmpeg
 
-### Snapchat
-
-install snapchat-dl
+### Installation
 
 ```
-$ pip install snapchat-dl
-$ snapchat-dl daviddobrik -d
-$ python concat.py
+$ git clone https://github.com/ayoubdya/concat-stories.git
+$ cd concat-stories/
+$ bash setup.sh
+```
+
+### Snapchat
+
+```
+$ cd snapchat/
+$ source venv/bin/activate
+$ snapchat-dl daviddobrik
+$ deactivate
 ```
 
 ### Instagram
 
-install pyinstastories
+```
+$ cd instagram/
+$ source venv/bin/activate
+$ python pyinstastories.py -nt -ta -u <YOUR_USERNAME> -p <YOUR_PASS> -d justinbieber
+$ deactivate
+```
+
+### Usage
 
 ```
-$ python pyinstastories.py --no-thumbs --taken-at --username <YOUR_USERNAME> \
---password <YOUR_PASSWORD> -d justinbieber
 $ python concat.py
 ```
