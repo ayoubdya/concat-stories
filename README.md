@@ -15,6 +15,6 @@ $ python concat.py
 install pyinstastories
 
 ```
-$ python pyinstastories.py --n-thumbs --taken-at --username <YOUR_USERNAME> --password <YOUR_PASSWORD> -d justinbieber
+$ python pyinstastories.py --no-thumbs --taken-at --username <YOUR_USERNAME> --password <YOUR_PASSWORD> -d justinbieber
 $ python concat.py
 ```
