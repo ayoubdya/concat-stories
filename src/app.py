@@ -15,7 +15,7 @@ def is_ffmpeg_installed():
     return False
 
 
-if __name__ == "__main__":
+def main():
   parser = argparse.ArgumentParser()
   parser.add_argument("-u", "--username", help="Snapchat username ex. djkhaled305", type=str, required=True, dest="username")
   parser.add_argument("-o", "--output", help="Output video name ex. dj_khaled_stories", type=str, default="output", dest="output", metavar="OUTPUT_NAME")
@@ -43,3 +43,7 @@ if __name__ == "__main__":
   if args.delete:
     shutil.rmtree(dir_name)
     logger.info(f"Stories deleted from {dir_name}")
+
+
+if __name__ == "__main__":
+  sys.exit(main())
