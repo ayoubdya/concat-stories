@@ -1,33 +1,33 @@
-concatenate snapchat public stories or instagram stories into one video with FFmpeg
+# Concat Stories
 
-### Installation
+Concat Stories is a Python package that allows you to download Snapchat stories and merge them into a single video file.
 
-```
-$ git clone https://github.com/ayoubdya/concat-stories.git
-$ cd concat-stories/
-$ bash setup.sh
-```
+## Features
 
-### Snapchat
+- Download Snapchat stories
+- Merge multiple stories into one video
+- Easy to use
 
-```
-$ cd snapchat/
-$ source venv/bin/activate
-$ snapchat-dl daviddobrik
-$ deactivate
-```
+## Installation
 
-### Instagram
+You can install Concat Stories using pip:
 
-```
-$ cd instagram/
-$ source venv/bin/activate
-$ python pyinstastories.py -nt -ta -u <YOUR_USERNAME> -p <YOUR_PASS> -d justinbieber
-$ deactivate
+```bash
+pip install concat-stories
 ```
 
-### Usage
+## Usage
 
+Here is an example of how to use Concat Stories:
+
+```bash
+concat-stories -u <username> -o <output_file>
 ```
-$ python concat.py
-```
+
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request on GitHub.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
