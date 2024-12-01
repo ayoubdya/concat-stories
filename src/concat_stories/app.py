@@ -4,8 +4,8 @@ from loguru import logger
 import sys
 import shutil
 
-from snapchat_dl import SnapchatDL
-from concat_stories import ConcatStories
+from concat_stories.snapchat_dl import SnapchatDL
+from concat_stories.con_stories import ConcatStories
 
 
 def is_ffmpeg_installed():

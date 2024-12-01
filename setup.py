@@ -9,7 +9,7 @@ requirements = [
 ]
 
 version = {}
-with open("src/version.py") as fp:
+with open("src/concat_stories/version.py") as fp:
   exec(fp.read(), version)
 
 setup(
@@ -22,12 +22,12 @@ setup(
   author_email='ayoubdya@gmail.com',
   url='https://github.com/ayoubdya/concat-stories',
   package_dir={'': 'src'},
+  packages=find_packages(where='src'),
   entry_points={
     'console_scripts': [
-      'concat-stories = app:main',
+      'concat-stories = concat_stories.app:main',
     ],
   },
-  packages=find_packages(where='src'),
   install_requires=requirements,
   keywords='concat-stories',
   license='MIT',
