@@ -21,14 +21,14 @@ class ConcatStories:
       probe_file = list(filter(lambda file: file.endswith(EXT), stories))[0]
       probe_file = ffmpeg.probe(os.path.join(self.dir_name, probe_file))
       self.resolution = (probe_file['streams'][0]['width'], probe_file['streams'][0]['height'])
-    except Exception as e:
-      print(e)
+    except IndexError:
+      pass
 
   def concat(self):
     input_streams_spread = []
 
     for file in self.stories:
-      if file.endswith(".mp4"):
+      if file.endswith(EXT):
         stream = ffmpeg.input(os.path.join(self.dir_name, file))
         probe = ffmpeg.probe(os.path.join(self.dir_name, file))
         if len(probe['streams']) < 2:

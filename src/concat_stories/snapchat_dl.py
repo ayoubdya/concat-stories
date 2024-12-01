@@ -133,7 +133,7 @@ class SnapchatDL:
         username (str): Snapchat `username`
 
     Returns:
-        str: directory path where stories are downloaded
+        tuple: (dir_name, folder_name)
     """
     stories = self._web_fetch_story(username)
 
@@ -154,16 +154,16 @@ class SnapchatDL:
         media_type = media["snapMediaType"]
         timestamp = int(media["timestampInSec"]["value"])
 
-        dir_name = os.path.join(self.directory_prefix, username)
+        now_date = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        folder_name = f"{username}_{now_date}"
+        dir_name = os.path.join(self.directory_prefix, folder_name)
 
         filename = datetime.fromtimestamp(timestamp, timezone.utc).strftime("%Y-%m-%d_%H-%M-%S_{}_{}.{}").format(
             username, snap_id, MEDIA_TYPE[media_type]
         )
 
         media_output = os.path.join(dir_name, filename)
-        executor.submit(
-            self._download_url, media_url, media_output, self.sleep_interval
-        )
+        executor.submit(self._download_url, media_url, media_output, self.sleep_interval)
 
     except KeyboardInterrupt:
       executor.shutdown(wait=False)
@@ -171,4 +171,4 @@ class SnapchatDL:
     # wait for all downloads to finish
     executor.shutdown(wait=True)
     logger.info("[✔] {} stories downloaded".format(username, len(stories)))
-    return dir_name
+    return dir_name, folder_name

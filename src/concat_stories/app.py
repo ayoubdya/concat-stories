@@ -20,7 +20,7 @@ def is_ffmpeg_installed():
 def main():
   parser = argparse.ArgumentParser()
   parser.add_argument("-u", "--username", help="Snapchat username ex. djkhaled305", type=str, required=True, dest="username")
-  parser.add_argument("-o", "--output", help="Output video name ex. dj_khaled_stories", type=str, default="output", dest="output", metavar="OUTPUT_NAME")
+  parser.add_argument("-o", "--output", help="Output video name ex. dj_khaled_stories", type=str, dest="output", metavar="OUTPUT_NAME")
   parser.add_argument("-d", "--delete", help="Delete stories after download.", action="store_true", default=False, dest="delete")
   parser.add_argument("-w", "--wait", help="Wait for user to delete unwanted stories.", action="store_true", default=False, dest="wait")
   parser.add_argument("-l", "--limit-story", help="Set maximum number of stories to download.", type=int, default=-1, dest="limit_story", metavar="LIMIT")
@@ -41,11 +41,12 @@ def main():
   args = parser.parse_args()
 
   try:
-    dir_name = SnapchatDL(sleep_interval=args.sleep_interval, limit_story=args.limit_story).download(args.username)
+    dir_name, folder_name = SnapchatDL(sleep_interval=args.sleep_interval, limit_story=args.limit_story).download(args.username)
     if args.wait:
       logger.info("Press Enter to continue after deleting unwanted stories.")
       input("Press Enter to continue...")
-    concat_stories = ConcatStories(dir_name, args.output, loop_duration_image=args.loop_duration_image, is_quiet=not args.verbose)
+    output_name = args.output or folder_name
+    concat_stories = ConcatStories(dir_name, output_name, loop_duration_image=args.loop_duration_image, is_quiet=not args.verbose)
     concat_stories.concat()
 
     if args.delete:
