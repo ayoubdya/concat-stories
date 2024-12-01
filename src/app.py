@@ -1,10 +1,11 @@
 import argparse
 import subprocess
 from loguru import logger
-from .snapchat_dl import SnapchatDL
-from .concat_stories import ConcatStories
 import sys
 import shutil
+
+from snapchat_dl import SnapchatDL
+from concat_stories import ConcatStories
 
 
 def is_ffmpeg_installed():
@@ -36,13 +37,16 @@ def main():
 
   args = parser.parse_args()
 
-  dir_name = SnapchatDL(sleep_interval=args.sleep_interval, limit_story=args.limit_story).download(args.username)
-  concat_stories = ConcatStories(dir_name, args.output, loop_duration_image=args.loop_duration_image, is_quiet=not args.verbose)
-  concat_stories.concat()
+  try:
+    dir_name = SnapchatDL(sleep_interval=args.sleep_interval, limit_story=args.limit_story).download(args.username)
+    concat_stories = ConcatStories(dir_name, args.output, loop_duration_image=args.loop_duration_image, is_quiet=not args.verbose)
+    concat_stories.concat()
 
-  if args.delete:
-    shutil.rmtree(dir_name)
-    logger.info(f"Stories deleted from {dir_name}")
+    if args.delete:
+      shutil.rmtree(dir_name)
+      logger.info(f"Stories deleted from {dir_name}")
+  except Exception:
+    sys.exit(1)
 
 
 if __name__ == "__main__":
