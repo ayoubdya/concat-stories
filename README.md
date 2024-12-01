@@ -21,7 +21,22 @@ pip install concat-stories
 Here is an example of how to use Concat Stories:
 
 ```bash
-concat-stories -u <username> -o <output_file>
+usage: concat-stories [-h] -u USERNAME [-o OUTPUT_NAME] [-d] [--sleep-interval INTERVAL] [-l LIMIT] [-v] [--image-duration DURATION]
+
+options:
+  -h, --help            show this help message and exit
+  -u USERNAME, --username USERNAME
+                        Snapchat username ex. djkhaled305
+  -o OUTPUT_NAME, --output OUTPUT_NAME
+                        Output video name ex. dj_khaled_stories
+  -d, --delete          Delete stories after download.
+  --sleep-interval INTERVAL
+                        Sleep between downloads in seconds. (Default: 1s)
+  -l LIMIT, --limit-story LIMIT
+                        Set maximum number of stories to download.
+  -v, --verbose         FFmpeg output verbosity.
+  --image-duration DURATION
+                        Set duration for image in seconds. (Default: 1s)
 ```
 
 ## Contributing
