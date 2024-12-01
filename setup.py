@@ -1,4 +1,5 @@
 """The setup script."""
+from os.path import join
 from setuptools import setup, find_packages
 
 with open('README.md') as f:
@@ -9,7 +10,7 @@ requirements = [
 ]
 
 version = {}
-with open("src/concat_stories/version.py") as fp:
+with open(join('concat_stories', 'version.py')) as fp:
   exec(fp.read(), version)
 
 setup(
@@ -21,8 +22,7 @@ setup(
   author='Ayoub Dya',
   author_email='ayoubdya@gmail.com',
   url='https://github.com/ayoubdya/concat-stories',
-  package_dir={'': 'src'},
-  packages=find_packages(where='src'),
+  packages=find_packages(where='.'),
   entry_points={
     'console_scripts': [
       'concat-stories = concat_stories.app:main',
