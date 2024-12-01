@@ -6,6 +6,7 @@ import shutil
 
 from concat_stories.snapchat_dl import SnapchatDL
 from concat_stories.con_stories import ConcatStories
+from concat_stories.version import __version__
 
 
 def is_ffmpeg_installed():
@@ -21,10 +22,12 @@ def main():
   parser.add_argument("-u", "--username", help="Snapchat username ex. djkhaled305", type=str, required=True, dest="username")
   parser.add_argument("-o", "--output", help="Output video name ex. dj_khaled_stories", type=str, default="output", dest="output", metavar="OUTPUT_NAME")
   parser.add_argument("-d", "--delete", help="Delete stories after download.", action="store_true", default=False, dest="delete")
-  parser.add_argument("--sleep-interval", help="Sleep between downloads in seconds. (Default: 1s)", type=int, default=1, dest="sleep_interval", metavar="INTERVAL")
+  parser.add_argument("-w", "--wait", help="Wait for user to delete unwanted stories.", action="store_true", default=False, dest="wait")
   parser.add_argument("-l", "--limit-story", help="Set maximum number of stories to download.", type=int, default=-1, dest="limit_story", metavar="LIMIT")
   parser.add_argument("-v", "--verbose", help="FFmpeg output verbosity.", action="store_true", default=False, dest="verbose")
+  parser.add_argument("--sleep-interval", help="Sleep between downloads in seconds. (Default: 1s)", type=int, default=1, dest="sleep_interval", metavar="INTERVAL")
   parser.add_argument("--image-duration", help="Set duration for image in seconds. (Default: 1s)", type=int, default=1, dest="loop_duration_image", metavar="DURATION")
+  parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
 
   if not is_ffmpeg_installed():
     logger.error("FFmpeg binary not found. Please install FFmpeg or add it to PATH.")
@@ -39,6 +42,9 @@ def main():
 
   try:
     dir_name = SnapchatDL(sleep_interval=args.sleep_interval, limit_story=args.limit_story).download(args.username)
+    if args.wait:
+      logger.info("Press Enter to continue after deleting unwanted stories.")
+      input("Press Enter to continue...")
     concat_stories = ConcatStories(dir_name, args.output, loop_duration_image=args.loop_duration_image, is_quiet=not args.verbose)
     concat_stories.concat()
 
