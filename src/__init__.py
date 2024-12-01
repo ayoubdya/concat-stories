@@ -1,4 +1,3 @@
-from .concat_stories import ConcatStories
-from .snapchat_dl import SnapchatDL
-
-__all__ = ["ConcatStories", "SnapchatDL"]
+import os
+import sys
+sys.path.append(os.path.dirname(os.path.realpath(__file__)))

@@ -21,12 +21,13 @@ setup(
   author='Ayoub Dya',
   author_email='ayoubdya@gmail.com',
   url='https://github.com/ayoubdya/concat-stories',
+  package_dir={'': 'src'},
   entry_points={
     'console_scripts': [
-      'concat-stories = src.app:main',
+      'concat-stories = app:main',
     ],
   },
-  packages=find_packages(),
+  packages=find_packages(where='src'),
   install_requires=requirements,
   keywords='concat-stories',
   license='MIT',
