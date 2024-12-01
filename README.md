@@ -20,8 +20,8 @@ pip install concat-stories
 
 Here is an example of how to use Concat Stories:
 
-```bash
-usage: concat-stories [-h] -u USERNAME [-o OUTPUT_NAME] [-d] [--sleep-interval INTERVAL] [-l LIMIT] [-v] [--image-duration DURATION]
+```
+usage: concat-stories [-h] -u USERNAME [-o OUTPUT_NAME] [-d] [-w] [-l LIMIT] [-v] [--sleep-interval INTERVAL] [--image-duration DURATION] [--version]
 
 options:
   -h, --help            show this help message and exit
@@ -30,13 +30,15 @@ options:
   -o OUTPUT_NAME, --output OUTPUT_NAME
                         Output video name ex. dj_khaled_stories
   -d, --delete          Delete stories after download.
-  --sleep-interval INTERVAL
-                        Sleep between downloads in seconds. (Default: 1s)
+  -w, --wait            Wait for user to delete unwanted stories.
   -l LIMIT, --limit-story LIMIT
                         Set maximum number of stories to download.
   -v, --verbose         FFmpeg output verbosity.
+  --sleep-interval INTERVAL
+                        Sleep between downloads in seconds. (Default: 1s)
   --image-duration DURATION
                         Set duration for image in seconds. (Default: 1s)
+  --version             show program's version number and exit
 ```
 
 ## Contributing
