@@ -149,15 +149,15 @@ class SnapchatDL:
     executor = concurrent.futures.ThreadPoolExecutor(max_workers=self.max_workers)
     try:
       for media in stories:
-        # snap_id = media["snapId"]["value"]
+        snap_id = media["snapId"]["value"]
         media_url = media["snapUrls"]["mediaUrl"]
         media_type = media["snapMediaType"]
         timestamp = int(media["timestampInSec"]["value"])
 
         dir_name = os.path.join(self.directory_prefix, username)
 
-        filename = datetime.fromtimestamp(timestamp, timezone.utc).strftime("%Y-%m-%d_%H-%M-%S_{}.{}").format(
-            username, MEDIA_TYPE[media_type]
+        filename = datetime.fromtimestamp(timestamp, timezone.utc).strftime("%Y-%m-%d_%H-%M-%S_{}_{}.{}").format(
+            username, snap_id, MEDIA_TYPE[media_type]
         )
 
         media_output = os.path.join(dir_name, filename)
