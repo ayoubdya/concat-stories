@@ -8,9 +8,13 @@ requirements = [
   package for package in open('requirements.txt').readlines() if package != ''
 ]
 
+version = {}
+with open("src/version.py") as fp:
+  exec(fp.read(), version)
+
 setup(
   name='concat-stories',
-  version='0.1.0',
+  version=version['__version__'],
   description='Concatenate Snapchat stories.',
   long_description=readme,
   long_description_content_type='text/markdown',
