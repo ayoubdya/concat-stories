@@ -1,4 +1,7 @@
-# Concat Stories
+# Concat Stories 
+[![PyPI Downloads](https://static.pepy.tech/badge/concat-stories)](https://pepy.tech/projects/concat-stories) 
+[![Version](https://img.shields.io/pypi/v/concat-stories)](https://pypi.org/project/concat-stories/)
+[![License](https://img.shields.io/pypi/l/concat-stories)](https://pypi.org/project/concat-stories/)
 
 Concat Stories is a Python package that allows you to download Snapchat stories and merge them into a single video file.
 
