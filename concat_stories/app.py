@@ -3,10 +3,10 @@ import subprocess
 from loguru import logger
 import sys
 import shutil
+from importlib.metadata import version
 
 from concat_stories.snapchat_dl import SnapchatDL
 from concat_stories.con_stories import ConcatStories
-from concat_stories.version import __version__
 
 
 def is_ffmpeg_installed():
@@ -27,7 +27,7 @@ def main():
   parser.add_argument("-v", "--verbose", help="FFmpeg output verbosity.", action="store_true", default=False, dest="verbose")
   parser.add_argument("--sleep-interval", help="Sleep between downloads in seconds. (Default: 1s)", type=int, default=1, dest="sleep_interval", metavar="INTERVAL")
   parser.add_argument("--image-duration", help="Set duration for image in seconds. (Default: 1s)", type=int, default=1, dest="loop_duration_image", metavar="DURATION")
-  parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
+  parser.add_argument("--version", action="version", version=f"%(prog)s {version('concat_stories')}")
 
   if not is_ffmpeg_installed():
     logger.error("FFmpeg binary not found. Please install FFmpeg or add it to PATH.")

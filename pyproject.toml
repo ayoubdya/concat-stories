@@ -1,0 +1,20 @@
+[project]
+name = "concat-stories"
+version = "0.2.5"
+description = "Concatenate Snapchat stories."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Ayoub Dya", email = "ayoubdya@gmail.com" }]
+keywords = ["concat-stories"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+]
+dependencies = ["loguru", "requests", "ffmpeg-python"]
+
+[project.urls]
+Homepage = "https://github.com/ayoubdya/concat-stories"
+
+[project.scripts]
+concat-stories = "concat_stories.app:main"
