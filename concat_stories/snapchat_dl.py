@@ -1,4 +1,3 @@
-
 import concurrent.futures
 from datetime import datetime, timezone
 import json
@@ -28,11 +27,7 @@ class SnapchatDL:
   """Interact with Snapchat API to download story."""
 
   def __init__(
-      self,
-      directory_prefix="stories",
-      max_workers=2,
-      limit_story=-1,
-      sleep_interval=1
+    self, directory_prefix="stories", max_workers=2, limit_story=-1, sleep_interval=1
   ):
     self.directory_prefix = os.path.abspath(os.path.normpath(directory_prefix))
     self.max_workers = max_workers
@@ -40,17 +35,17 @@ class SnapchatDL:
     self.sleep_interval = sleep_interval
     self.endpoint_web = "https://www.snapchat.com/add/{}/"
     self.regexp_web_json = (
-        r'<script\s*id="__NEXT_DATA__"\s*type="application\/json">([^<]+)<\/script>'
+      r'<script\s*id="__NEXT_DATA__"\s*type="application\/json">([^<]+)<\/script>'
     )
     self.reaponse_ok = requests.codes.get("ok")
 
   def _api_response(self, username):
     web_url = self.endpoint_web.format(username)
     return requests.get(
-        web_url,
-        headers={
-            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
-        },
+      web_url,
+      headers={
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+      },
     ).text
 
   def _web_fetch_story(self, username):
@@ -109,7 +104,7 @@ class SnapchatDL:
       raise response.raise_for_status()
 
     if os.path.isfile(dest) and os.path.getsize(dest) == response.headers.get(
-        "content-length"
+      "content-length"
     ):
       raise FileExistsError
 
@@ -123,7 +118,7 @@ class SnapchatDL:
           handle.close()
         except requests.exceptions.RequestException as e:
           logger.error(e)
-    except FileExistsError as e:
+    except FileExistsError:
       pass
 
   def download(self, username):
@@ -142,7 +137,7 @@ class SnapchatDL:
       raise NoStoriesFound
 
     if self.limit_story > -1:
-      stories = stories[0: self.limit_story]
+      stories = stories[0 : self.limit_story]
 
     logger.info("[+] {} has {} stories".format(username, len(stories)))
 
@@ -158,17 +153,21 @@ class SnapchatDL:
         folder_name = f"{username}_{now_date}"
         dir_name = os.path.join(self.directory_prefix, folder_name)
 
-        filename = datetime.fromtimestamp(timestamp, timezone.utc).strftime("%Y-%m-%d_%H-%M-%S_{}_{}.{}").format(
-            username, snap_id, MEDIA_TYPE[media_type]
+        filename = (
+          datetime.fromtimestamp(timestamp, timezone.utc)
+          .strftime("%Y-%m-%d_%H-%M-%S_{}_{}.{}")
+          .format(username, snap_id, MEDIA_TYPE[media_type])
         )
 
         media_output = os.path.join(dir_name, filename)
-        executor.submit(self._download_url, media_url, media_output, self.sleep_interval)
+        executor.submit(
+          self._download_url, media_url, media_output, self.sleep_interval
+        )
 
     except KeyboardInterrupt:
       executor.shutdown(wait=False)
 
     # wait for all downloads to finish
     executor.shutdown(wait=True)
-    logger.info("[✔] {} stories downloaded".format(username, len(stories)))
+    logger.info("[✔] {} stories downloaded".format(username))
     return dir_name, folder_name
