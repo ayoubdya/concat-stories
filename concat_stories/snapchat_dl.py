@@ -101,7 +101,7 @@ class SnapchatDL:
       response = requests.get(url, stream=True, timeout=10)
 
     if response.status_code != requests.codes.get("ok"):
-      raise response.raise_for_status()
+      response.raise_for_status()
 
     if os.path.isfile(dest) and os.path.getsize(dest) == response.headers.get(
       "content-length"
@@ -128,20 +128,25 @@ class SnapchatDL:
         username (str): Snapchat `username`
 
     Returns:
-        tuple: (dir_name, folder_name)
+        str: path to downloaded stories
     """
     stories = self._web_fetch_story(username)
 
     if len(stories) == 0:
-      logger.info("\033[91m{}\033[0m has no stories".format(username))
+      logger.info(f"\033[91m{username}\033[0m has no stories")
       raise NoStoriesFound
 
     if self.limit_story > -1:
       stories = stories[0 : self.limit_story]
 
-    logger.info("[+] {} has {} stories".format(username, len(stories)))
+    logger.info(f"[+] {username} has {len(stories)} stories")
 
     executor = concurrent.futures.ThreadPoolExecutor(max_workers=self.max_workers)
+
+    now_date = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    folder_name = f"{username}_{now_date}"
+    dir_path = os.path.join(self.directory_prefix, folder_name)
+
     try:
       for media in stories:
         snap_id = media["snapId"]["value"]
@@ -149,17 +154,11 @@ class SnapchatDL:
         media_type = media["snapMediaType"]
         timestamp = int(media["timestampInSec"]["value"])
 
-        now_date = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        folder_name = f"{username}_{now_date}"
-        dir_name = os.path.join(self.directory_prefix, folder_name)
-
-        filename = (
-          datetime.fromtimestamp(timestamp, timezone.utc)
-          .strftime("%Y-%m-%d_%H-%M-%S_{}_{}.{}")
-          .format(username, snap_id, MEDIA_TYPE[media_type])
+        filename = datetime.fromtimestamp(timestamp, timezone.utc).strftime(
+          f"%Y-%m-%d_%H-%M-%S_{username}_{snap_id}.{MEDIA_TYPE[media_type]}"
         )
 
-        media_output = os.path.join(dir_name, filename)
+        media_output = os.path.join(dir_path, filename)
         executor.submit(
           self._download_url, media_url, media_output, self.sleep_interval
         )
@@ -169,5 +168,5 @@ class SnapchatDL:
 
     # wait for all downloads to finish
     executor.shutdown(wait=True)
-    logger.info("[✔] {} stories downloaded".format(username))
-    return dir_name, folder_name
+    logger.info(f"[✔] {username} stories downloaded")
+    return dir_path

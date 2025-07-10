@@ -102,13 +102,16 @@ def main():
   args = parser.parse_args()
 
   try:
-    dir_name, folder_name = SnapchatDL(
+    dir_name = SnapchatDL(
       sleep_interval=args.sleep_interval, limit_story=args.limit_story
     ).download(args.username)
     if args.wait:
       logger.info("Press Enter to continue after deleting unwanted stories.")
       input("Press Enter to continue...")
+
+    folder_name = dir_name.split("/")[-1]
     output_name = args.output or folder_name
+
     concat_stories = ConcatStories(
       dir_name,
       output_name,
