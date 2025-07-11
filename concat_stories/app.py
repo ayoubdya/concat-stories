@@ -9,7 +9,7 @@ from concat_stories.snapchat_dl import SnapchatDL
 from concat_stories.con_stories import ConcatStories
 
 
-def is_ffmpeg_installed():
+def is_ffmpeg_installed() -> bool:
   try:
     result = subprocess.run(
       ["ffmpeg", "-version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
@@ -102,18 +102,22 @@ def main():
   args = parser.parse_args()
 
   try:
-    dir_name = SnapchatDL(
+    sorted_stories = SnapchatDL(
       sleep_interval=args.sleep_interval, limit_story=args.limit_story
     ).download(args.username)
+
     if args.wait:
       logger.info("Press Enter to continue after deleting unwanted stories.")
       input("Press Enter to continue...")
 
-    folder_name = dir_name.split("/")[-1]
+    # We know sorted_stories is not empty
+    dir_path = sorted_stories[0].rsplit("/", 1)[0]
+
+    folder_name = dir_path.split("/")[-1]
     output_name = args.output or folder_name
 
     concat_stories = ConcatStories(
-      dir_name,
+      sorted_stories,
       output_name,
       loop_duration_image=args.loop_duration_image,
       is_quiet=not args.verbose,
@@ -121,9 +125,12 @@ def main():
     concat_stories.concat()
 
     if args.delete:
-      shutil.rmtree(dir_name)
-      logger.info(f"Stories deleted from {dir_name}")
-  except Exception:
+      shutil.rmtree(dir_path)
+      logger.info(f"Stories deleted from {dir_path}")
+  except KeyboardInterrupt:
+    logger.info("Process interrupted by user.")
+  except Exception as e:
+    logger.error(f"An error occurred: {e}")
     sys.exit(1)
 
 

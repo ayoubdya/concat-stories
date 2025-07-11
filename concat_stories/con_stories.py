@@ -1,4 +1,5 @@
 import ffmpeg
+from ffmpeg.nodes import FilterableStream
 import os
 from loguru import logger
 
@@ -9,21 +10,18 @@ FRAMERATE = 30
 class ConcatStories:
   def __init__(
     self,
-    dir_name: str,
+    sorted_stories: list[str],
     output: str,
     loop_duration_image: int = 1,
     is_quiet: bool = True,
   ):
-    self.dir_name = dir_name
-    stories = os.listdir(self.dir_name)
-    stories.sort(key=lambda file: os.path.getmtime(os.path.join(self.dir_name, file)))
-    self.stories = stories
+    self.stories = sorted_stories
     self.output = output
     self.resolution = RESOLUTION
     self.loop_duration_image = loop_duration_image
     self.is_quiet = is_quiet
 
-  def _fix_aspect_ratio(self, stream):
+  def _fix_aspect_ratio(self, stream: FilterableStream) -> FilterableStream:
     stream = ffmpeg.filter_(
       stream["v"],
       "scale",
@@ -42,13 +40,11 @@ class ConcatStories:
     )
     return stream
 
-  def concat(self):
+  def concat(self) -> None:
     input_streams_spread = []
 
-    for file in self.stories:
-      path = os.path.join(self.dir_name, file)
-
-      if file.endswith(".mp4"):
+    for path in self.stories:
+      if path.endswith(".mp4"):
         stream = ffmpeg.input(path)
         probe = ffmpeg.probe(path)
 

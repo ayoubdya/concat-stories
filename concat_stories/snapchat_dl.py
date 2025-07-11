@@ -39,7 +39,7 @@ class SnapchatDL:
     )
     self.reaponse_ok = requests.codes.get("ok")
 
-  def _api_response(self, username):
+  def _api_response(self, username: str) -> str:
     web_url = self.endpoint_web.format(username)
     return requests.get(
       web_url,
@@ -48,7 +48,7 @@ class SnapchatDL:
       },
     ).text
 
-  def _web_fetch_story(self, username):
+  def _web_fetch_story(self, username: str) -> list[dict]:
     """Download user stories from Web.
 
     Args:
@@ -121,14 +121,14 @@ class SnapchatDL:
     except FileExistsError:
       pass
 
-  def download(self, username):
+  def download(self, username: str) -> list[str]:
     """Download Snapchat Story for `username`.
 
     Args:
         username (str): Snapchat `username`
 
     Returns:
-        str: path to downloaded stories
+        list: list of downloaded sorted stories by timestamp
     """
     stories = self._web_fetch_story(username)
 
@@ -147,6 +147,8 @@ class SnapchatDL:
     folder_name = f"{username}_{now_date}"
     dir_path = os.path.join(self.directory_prefix, folder_name)
 
+    sorted_stories = []
+
     try:
       for media in stories:
         snap_id = media["snapId"]["value"]
@@ -163,10 +165,15 @@ class SnapchatDL:
           self._download_url, media_url, media_output, self.sleep_interval
         )
 
+        sorted_stories.append((timestamp, media_output))
+
     except KeyboardInterrupt:
       executor.shutdown(wait=False)
 
     # wait for all downloads to finish
     executor.shutdown(wait=True)
     logger.info(f"[✔] {username} stories downloaded")
-    return dir_path
+
+    sorted_stories.sort(key=lambda x: x[0])
+    sorted_stories = [story[1] for story in sorted_stories]
+    return sorted_stories
