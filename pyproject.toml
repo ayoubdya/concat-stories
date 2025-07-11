@@ -1,6 +1,6 @@
 [project]
 name = "concat-stories"
-version = "0.2.5"
+version = "0.3"
 description = "Concatenate Snapchat stories."
 readme = "README.md"
 license = { text = "MIT" }

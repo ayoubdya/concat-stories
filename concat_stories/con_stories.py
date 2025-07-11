@@ -3,7 +3,6 @@ import os
 from loguru import logger
 
 RESOLUTION = (480, 852)
-EXT = ".mp4"
 FRAMERATE = 30
 
 
@@ -23,40 +22,55 @@ class ConcatStories:
     self.resolution = RESOLUTION
     self.loop_duration_image = loop_duration_image
     self.is_quiet = is_quiet
-    try:
-      probe_file = list(filter(lambda file: file.endswith(EXT), stories))[0]
-      probe_file = ffmpeg.probe(os.path.join(self.dir_name, probe_file))
-      self.resolution = (
-        probe_file["streams"][0]["width"],
-        probe_file["streams"][0]["height"],
-      )
-    except IndexError:
-      pass
+
+  def _fix_aspect_ratio(self, stream):
+    stream = ffmpeg.filter_(
+      stream["v"],
+      "scale",
+      width=self.resolution[0],
+      height=self.resolution[1],
+      force_original_aspect_ratio="decrease",
+    )
+    stream = ffmpeg.filter_(
+      stream,
+      "pad",
+      width=self.resolution[0],
+      height=self.resolution[1],
+      x="(ow-iw)/2",
+      y="(oh-ih)/2",
+      color="black",
+    )
+    return stream
 
   def concat(self):
     input_streams_spread = []
 
     for file in self.stories:
-      if file.endswith(EXT):
-        stream = ffmpeg.input(os.path.join(self.dir_name, file))
-        probe = ffmpeg.probe(os.path.join(self.dir_name, file))
+      path = os.path.join(self.dir_name, file)
+
+      if file.endswith(".mp4"):
+        stream = ffmpeg.input(path)
+        probe = ffmpeg.probe(path)
+
+        stream_adjusted = self._fix_aspect_ratio(stream)
         if len(probe["streams"]) < 2:
           empty_audio = ffmpeg.input(
             "anullsrc", f="lavfi", t=probe["streams"][0]["duration"]
           )
-          input_streams_spread.extend([stream, empty_audio])
+          input_streams_spread.extend([stream_adjusted, empty_audio])
         else:
-          input_streams_spread.extend([stream["v"], stream["a"]])
+          input_streams_spread.extend([stream_adjusted, stream["a"]])
       else:
-        image = ffmpeg.input(
-          os.path.join(self.dir_name, file),
+        stream = ffmpeg.input(
+          path,
           t=self.loop_duration_image,
           loop=1,
           framerate=FRAMERATE,
         )
-        image = ffmpeg.filter_(image, "scale", *self.resolution)
+        stream = self._fix_aspect_ratio(stream)
+
         empty_audio = ffmpeg.input("anullsrc", f="lavfi", t=self.loop_duration_image)
-        input_streams_spread.extend([image, empty_audio])
+        input_streams_spread.extend([stream, empty_audio])
 
     joined = ffmpeg.concat(*input_streams_spread, v=1, a=1, unsafe=True).node
     loglevel = "quiet" if self.is_quiet else "info"
