@@ -38,6 +38,15 @@ def main():
     metavar="OUTPUT_NAME",
   )
   parser.add_argument(
+    "-r",
+    "--resolution",
+    help="Set video resolution (Default: 480x852)",
+    type=str,
+    metavar="WIDTHxHEIGHT",
+    default="480x852",
+    dest="resolution",
+  )
+  parser.add_argument(
     "-d",
     "--delete",
     help="Delete stories after download.",
@@ -101,14 +110,19 @@ def main():
 
   args = parser.parse_args()
 
+  dirty_res: str = args.resolution.split("x")
+  if len(dirty_res) != 2 or not all(res.isdigit() for res in dirty_res):
+    logger.error(
+      "Invalid resolution format. Use WIDTHxHEIGHT (e.g., 480x852). Using default resolution (480x852)."
+    )
+    resolution = None
+  else:
+    resolution = (int(dirty_res[0]), int(dirty_res[1]))
+
   try:
     sorted_stories = SnapchatDL(
       sleep_interval=args.sleep_interval, limit_story=args.limit_story
     ).download(args.username)
-
-    if args.wait:
-      logger.info("Press Enter to continue after deleting unwanted stories.")
-      input("Press Enter to continue...")
 
     # We know sorted_stories is not empty
     dir_path = sorted_stories[0].rsplit("/", 1)[0]
@@ -116,9 +130,15 @@ def main():
     folder_name = dir_path.split("/")[-1]
     output_name = args.output or folder_name
 
+    if args.wait:
+      logger.info("Press Enter to continue after deleting unwanted stories.")
+      logger.info(f"Location of downloaded stories: {dir_path}")
+      input("Press Enter to continue...")
+
     concat_stories = ConcatStories(
       sorted_stories,
       output_name,
+      resolution,
       loop_duration_image=args.loop_duration_image,
       is_quiet=not args.verbose,
     )

@@ -12,12 +12,13 @@ class ConcatStories:
     self,
     sorted_stories: list[str],
     output: str,
+    resolution: tuple[int, int] | None = RESOLUTION,
     loop_duration_image: int = 1,
     is_quiet: bool = True,
   ):
     self.stories = sorted_stories
     self.output = output
-    self.resolution = RESOLUTION
+    self.resolution = resolution if resolution else RESOLUTION
     self.loop_duration_image = loop_duration_image
     self.is_quiet = is_quiet
 
@@ -44,6 +45,9 @@ class ConcatStories:
     input_streams_spread = []
 
     for path in self.stories:
+      if not os.path.exists(path):
+        continue
+
       if path.endswith(".mp4"):
         stream = ffmpeg.input(path)
         probe = ffmpeg.probe(path)

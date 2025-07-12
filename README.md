@@ -24,7 +24,7 @@ pip install concat-stories
 Here is an example of how to use Concat Stories:
 
 ```
-usage: concat-stories [-h] -u USERNAME [-o OUTPUT_NAME] [-d] [-w] [-l LIMIT] [-v] [--sleep-interval INTERVAL] [--image-duration DURATION] [--version]
+usage: concat-stories [-h] -u USERNAME [-o OUTPUT_NAME] [-r WIDTHxHEIGHT] [-d] [-w] [-l LIMIT] [-v] [--sleep-interval INTERVAL] [--image-duration DURATION] [--version]
 
 options:
   -h, --help            show this help message and exit
@@ -32,6 +32,8 @@ options:
                         Snapchat username ex. djkhaled305
   -o OUTPUT_NAME, --output OUTPUT_NAME
                         Output video name ex. dj_khaled_stories
+  -r WIDTHxHEIGHT, --resolution WIDTHxHEIGHT
+                        Set video resolution (Default: 480x852)
   -d, --delete          Delete stories after download.
   -w, --wait            Wait for user to delete unwanted stories.
   -l LIMIT, --limit-story LIMIT
