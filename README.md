@@ -13,10 +13,16 @@ Concat Stories is a Python package that allows you to download Snapchat stories 
 
 ## Installation
 
-You can install Concat Stories using pip:
+You can install Concat Stories CLI using pip:
 
 ```bash
 pip install concat-stories
+```
+
+or using UV:
+
+```bash
+uv tool install concat-stories
 ```
 
 ## Usage
