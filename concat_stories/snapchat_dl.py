@@ -27,7 +27,7 @@ class SnapchatDL:
   """Interact with Snapchat API to download story."""
 
   def __init__(
-    self, directory_prefix="stories", max_workers=2, limit_story=-1, sleep_interval=1
+    self, directory_prefix="stories", max_workers=10, limit_story=-1, sleep_interval=1
   ):
     self.directory_prefix = os.path.abspath(os.path.normpath(directory_prefix))
     self.max_workers = max_workers
