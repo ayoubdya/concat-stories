@@ -68,14 +68,16 @@ class SnapchatDL:
 
       def util_web_story(content: dict):
         if "story" in content["props"]["pageProps"]:
-          return content["props"]["pageProps"]["story"]["snapList"]
+          stories = content["props"]["pageProps"]["story"]
+          return stories["snapList"] if stories and "snapList" in stories else []
+
         return list()
 
       stories = util_web_story(response_json)
       return stories
 
     except (IndexError, KeyError, ValueError):
-      raise APIResponseError
+      raise APIResponseError(f"Invalid API Response for {username}")
 
   def _download_url(self, url: str, dest: str, sleep_interval: int):
     """Download URL to destionation path.
@@ -134,7 +136,7 @@ class SnapchatDL:
 
     if len(stories) == 0:
       logger.info(f"\033[91m{username}\033[0m has no stories")
-      raise NoStoriesFound
+      raise NoStoriesFound(f"No stories found for {username}")
 
     if self.limit_story > -1:
       stories = stories[0 : self.limit_story]

@@ -5,7 +5,7 @@ import sys
 import shutil
 from importlib.metadata import version
 
-from concat_stories.snapchat_dl import SnapchatDL
+from concat_stories.snapchat_dl import SnapchatDL, NoStoriesFound
 from concat_stories.con_stories import ConcatStories
 
 
@@ -123,36 +123,39 @@ def main():
     sorted_stories = SnapchatDL(
       sleep_interval=args.sleep_interval, limit_story=args.limit_story
     ).download(args.username)
-
-    # We know sorted_stories is not empty
-    dir_path = sorted_stories[0].rsplit("/", 1)[0]
-
-    folder_name = dir_path.split("/")[-1]
-    output_name = args.output or folder_name
-
-    if args.wait:
-      logger.info("Press Enter to continue after deleting unwanted stories.")
-      logger.info(f"Location of downloaded stories: {dir_path}")
-      input("Press Enter to continue...")
-
-    concat_stories = ConcatStories(
-      sorted_stories,
-      output_name,
-      resolution,
-      loop_duration_image=args.loop_duration_image,
-      is_quiet=not args.verbose,
-    )
-    concat_stories.concat()
-
-    if args.delete:
-      shutil.rmtree(dir_path)
-      logger.info(f"Stories deleted from {dir_path}")
-  except KeyboardInterrupt:
-    logger.info("Process interrupted by user.")
+  except NoStoriesFound:
+    sys.exit(0)
   except Exception as e:
-    logger.error(f"An error occurred: {e}")
+    logger.error(f"Error downloading stories: {e}")
     sys.exit(1)
+
+  # We know sorted_stories is not empty
+  dir_path = sorted_stories[0].rsplit("/", 1)[0]
+
+  folder_name = dir_path.split("/")[-1]
+  output_name = args.output or folder_name
+
+  if args.wait:
+    logger.info("Press Enter to continue after deleting unwanted stories.")
+    logger.info(f"Location of downloaded stories: {dir_path}")
+    input("Press Enter to continue...")
+
+  concat_stories = ConcatStories(
+    sorted_stories,
+    output_name,
+    resolution,
+    loop_duration_image=args.loop_duration_image,
+    is_quiet=not args.verbose,
+  )
+  concat_stories.concat()
+
+  if args.delete:
+    shutil.rmtree(dir_path)
+    logger.info(f"Stories deleted from {dir_path}")
 
 
 if __name__ == "__main__":
-  sys.exit(main())
+  try:
+    main()
+  except KeyboardInterrupt:
+    logger.info("Process interrupted by user.")
